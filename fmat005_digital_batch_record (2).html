@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FMAT005 Dried Flower Packaging Record</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f8f6f2;
+    }
+    h1 {
+      color: #4d2c12;
+      text-align: center;
+    }
+    fieldset {
+      border: 2px solid #a67c52;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #ffffff;
+    }
+    legend {
+      font-weight: bold;
+      background: #f5b37f;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 4px;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #f5b37f;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="number"], input[type="date"], input[type="datetime-local"], select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    .btn-add { background: #4caf50; }
+    .btn-submit { background: #2196f3; }
+    .btn-print { background: #f44336; }
+    @media print {
+      .no-print { display: none; }
+    }
+
+    /* Navigation styles */
+    .nav {
+      margin-bottom: 20px;
+    }
+    .nav button {
+      padding: 6px 12px;
+      margin-right: 5px;
+      background: #a67c52;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .nav button.active {
+      background: #4d2c12;
+    }
+    /* Page container styling */
+    .page {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation between record types -->
+  <div class="nav no-print">
+    <button id="btnDried" class="active" type="button" onclick="showPage('dried')">Dried Flower Record</button>
+    <button id="btnPreroll" type="button" onclick="showPage('preroll')">Pre-Roll Record</button>
+  </div>
+  <!-- Dried Flower Record Page -->
+  <div id="driedPage" class="page" style="display:block;">
+  <h1>FMAT005 Dried Flower Packaging Record</h1>
+  <!-- Section 1: Batch Record – Inventory Summary -->
+  <fieldset id="section1">
+    <legend>1. Batch Record – Inventory Summary</legend>
+    <table>
+      <tr><th>Field</th><th>Input</th></tr>
+      <tr>
+        <td>Product Type</td>
+        <td>
+          <label><input type="checkbox" name="product_type" value="1-gram">1-gram</label><br>
+          <label><input type="checkbox" name="product_type" value="3.5-gram">3.5-gram</label><br>
+          <label><input type="checkbox" name="product_type" value="14-gram">14-gram</label><br>
+          <label><input type="checkbox" id="product_other_chk" name="product_type" value="Other">Other</label>
+          <input type="text" id="product_other_text" placeholder="Specify other" style="display:none; margin-top:5px;" />
+        </td>
+      </tr>
+      <tr><td>Total Amount of Input used (grams)</td><td><input type="number" id="sum_total_input" step="0.01"></td></tr>
+      <tr><td>Total number of packaged units</td><td><input type="number" id="sum_total_units" step="1"></td></tr>
+      <tr><td>Total Equivalent Weight (grams)</td><td><input type="number" id="sum_equiv_weight" step="0.01"></td></tr>
+      <tr><td>Total Waste (grams)</td><td><input type="number" id="sum_total_waste" step="0.01"></td></tr>
+      <tr><td>Other Material Leftover (grams)</td><td><input type="number" id="sum_other_leftover" step="0.01"></td></tr>
+      <tr><td>Total Processing Loss (grams)</td><td><input type="number" id="sum_processing_loss" step="0.01"></td></tr>
+      <tr><td>Total Processing Loss Percentage (%)</td><td><input type="number" id="sum_processing_loss_pct" step="0.01"></td></tr>
+      <tr><td>Activity Start Date</td><td><input type="date" id="activity_start_date"></td></tr>
+      <tr><td>Activity End Date</td><td><input type="date" id="activity_end_date"></td></tr>
+      <tr><td>Cultivar (Strain)</td><td><input type="text" id="cultivar"></td></tr>
+      <tr><td>Final Product Lot #</td><td><input type="text" id="final_product_lot"></td></tr>
+      <tr><td>Cannabis Net weight per Unit (grams)</td><td><input type="number" id="net_weight_per_unit" step="0.01"></td></tr>
+      <tr>
+        <td>Original (Source) Lot</td>
+        <td>
+          <input type="text" id="original_lot">
+          <label style="margin-left:10px;"><input type="checkbox" id="same_as_finished">Same as Finished Product Lot</label>
+        </td>
+      </tr>
+      <tr>
+        <td>Total Retention units taken out</td>
+        <td>
+          <input type="number" id="retention_units" step="1">
+          <label style="margin-left:10px;"><input type="checkbox" id="retention_na">N/A</label>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <!-- Section 2: Daily Inventory -->
+  <fieldset id="section2">
+    <legend>2. Daily Inventory</legend>
+    <table id="dailyInventoryTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>(A1) Total Input amount (g)</th>
+          <th>(B1) Packaged Units (#)</th>
+          <th>(B3) Equivalent weight (g)</th>
+          <th>(C1) Remaining input (g)</th>
+          <th>(D1) Waste (g)</th>
+          <th>(D2) Other Material Leftover (g)</th>
+          <th>(E1) Actual used (g)</th>
+          <th>(E2) Processing loss (g)</th>
+          <th>(E3) Processing loss %</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <div class="controls no-print">
+      <button class="btn-add" type="button" onclick="addDailyInventoryRow()">Add Inventory Row</button>
+    </div>
+  </fieldset>
+
+  <!-- Section 2.1: Daily Input Bag/Container -->
+  <fieldset id="section2_1">
+    <legend>2.1 Daily Input – Bag/Container number and quantity (g)</legend>
+    <table id="dailyInputTable">
+      <thead>
+        <tr><th>Date</th><th>Bag/Container</th><th>Quantity (g)</th></tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <div class="controls no-print">
+      <button class="btn-add" type="button" onclick="addDailyInputRow()">Add Bag Entry</button>
+    </div>
+  </fieldset>
+
+  <!-- Section 3: Pre-operation Check -->
+  <fieldset id="section3">
+    <legend>3. Pre-operation Check</legend>
+    <h3>3.1 General</h3>
+    <table id="preOpGeneral">
+      <thead>
+        <tr>
+          <th>Check Item</th>
+          <th>Date 1</th><th>Date 2</th><th>Date 3</th><th>Date 4</th><th>Date 5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Employees follow QUA015 Gowning and Hygienic Practices</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>No broken glass and/or plastics and/or wood</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>No cannabis debris from previous activities</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>All working surfaces and scales sanitized with ISO 70% and wiped dry</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>No sign of damage/deformity (report to QA if any)</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Scale Check</h3>
+    <table id="scaleCheckTable">
+      <thead>
+        <tr><th>Scale #</th><th>Weight Standard</th><th>Scale Reading</th><th>Acceptable?</th></tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <div class="controls no-print">
+      <button class="btn-add" type="button" onclick="addScaleRow()">Add Scale</button>
+    </div>
+
+    <h3>3.3 ATP Swab</h3>
+    <table id="atpSwabTable">
+      <thead>
+        <tr><th>Swab ID</th><th>Reading (RLU)</th><th>Result</th><th>Comments</th></tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <div class="controls no-print">
+      <button class="btn-add" type="button" onclick="addSwabRow()">Add Swab</button>
+    </div>
+
+    <h3>3.4 Room Temperature (°C)</h3>
+    <table id="roomTempTable">
+      <thead><tr><th>Date</th><th>Temperature (°C)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addRoomTempRow()">Add Temp Entry</button></div>
+
+    <h3>3.5 Room Humidity (%)</h3>
+    <table id="roomHumidityTable">
+      <thead><tr><th>Date</th><th>Humidity (%)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addRoomHumidityRow()">Add Humidity Entry</button></div>
+  </fieldset>
+
+  <!-- Section 4: Packaging Material -->
+  <fieldset id="section4">
+    <legend>4. Packaging Material</legend>
+    <table id="packagingMaterialTable">
+      <thead>
+        <tr><th>Packaging Material</th><th>Lot Number</th><th>Total Amount used</th><th>Total Amount Disposed</th><th>Container (Bag/Pouch)</th><th>Closure (if applicable)</th><th>Boveda pack</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addPackagingMaterialRow()">Add Material</button></div>
+  </fieldset>
+
+  <!-- Section 5: Weight Verification & Seal Integrity Check -->
+  <fieldset id="section5">
+    <legend>5. Weight Verification & Seal Integrity Check</legend>
+    <table id="weightVerificationTable">
+      <thead>
+        <tr><th>Date & Time</th><th>Net Weight Check before closing (g)</th><th>Net Weight Check after closing (g)</th><th>Capped or sealed?</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addWeightVerificationRow()">Add Verification</button></div>
+  </fieldset>
+
+  <!-- Section 6: Post Operation Check and sanitation -->
+  <fieldset id="section6">
+    <legend>6. Post Operation Check and Sanitation</legend>
+    <table id="postOperationTable">
+      <thead>
+        <tr><th>Date</th><th>Clean packaging station with ISO 70%</th><th>Clean tools and scales with ISO 70%</th><th>Return packaging material to designated area</th><th>Turn on Ozonate before leaving room</th><th>Leftover cannabis recorded and returned</th><th>Waste material collected and recorded</th><th>Packaged products boxed & labelled</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addPostOperationRow()">Add Post-Op Entry</button></div>
+  </fieldset>
+
+  <!-- Section 7: Completion and Review -->
+  <fieldset id="section7">
+    <legend>7. Completion and Review</legend>
+    <table>
+      <tr><td>Performed and recorded by</td><td><input type="text" id="completed_by"></td></tr>
+      <tr><td>Signature</td><td><input type="text" id="completed_signature"></td></tr>
+      <tr><td>Date</td><td><input type="date" id="completed_date"></td></tr>
+      <tr><td>Quality Assurance Review by</td><td><input type="text" id="qa_by"></td></tr>
+      <tr><td>QA Signature</td><td><input type="text" id="qa_signature"></td></tr>
+      <tr><td>QA Date</td><td><input type="date" id="qa_date"></td></tr>
+    </table>
+  </fieldset>
+
+  <!-- Section 8: Staff Record -->
+  <fieldset id="section8">
+    <legend>8. Staff Record</legend>
+    <table id="staffRecordTable">
+      <thead>
+        <tr><th>Date</th><th>Print names of applicable production members</th><th>Total number of staff</th><th>Batch Recorded and verified by</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="controls no-print"><button class="btn-add" type="button" onclick="addStaffRecordRow()">Add Staff Entry</button></div>
+  </fieldset>
+
+
+  <!-- Buttons -->
+  <div class="controls no-print">
+    <button class="btn-submit" type="button" onclick="exportToExcel()">Submit</button>
+    <button class="btn-print" type="button" onclick="window.print()">Print</button>
+  </div>
+
+  </div> <!-- end of driedPage -->
+
+  <!-- Pre-Roll Record Page -->
+  <div id="prerollPage" class="page" style="display:none;">
+    <h1>FMAT018B Pre-roll Packaging Record</h1>
+    <!-- Section 1: Batch Record – Inventory Summary -->
+    <fieldset id="preroll_section1">
+      <legend>1. Batch Record – Inventory Summary</legend>
+      <table>
+        <tr><td>Total Amount of Input used (grams)</td><td><input type="number" id="preroll_total_input" step="0.01"></td></tr>
+        <tr><td>Total number of packaged units</td><td><input type="number" id="preroll_total_units" step="1"></td></tr>
+        <tr><td>Total Equivalent Weight (grams)</td><td><input type="number" id="preroll_equiv_weight" step="0.01"></td></tr>
+        <tr><td>Total Waste (grams)</td><td><input type="number" id="preroll_total_waste" step="0.01"></td></tr>
+        <tr><td>Other Material Leftover (grams)</td><td><input type="number" id="preroll_other_leftover" step="0.01"></td></tr>
+        <tr><td>Total Processing Loss (grams)</td><td><input type="number" id="preroll_processing_loss" step="0.01"></td></tr>
+        <tr><td>Total Processing Loss Percentage (%)</td><td><input type="number" id="preroll_processing_loss_pct" step="0.01"></td></tr>
+        <tr><td>Total retention units taken out</td><td><input type="number" id="preroll_retention_units" step="1"></td></tr>
+      </table>
+    </fieldset>
+
+    <!-- Section 2: Daily Inventory -->
+    <fieldset id="preroll_section2_inventory">
+      <legend>2. Daily Inventory</legend>
+      <table id="prerollDailyInventoryTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>(A1) Total Input amount (g)</th>
+            <th>(B1) Packaged Units (#)</th>
+            <th>(B3) Equivalent weight (g)</th>
+            <th>(C1) Remaining input (g)</th>
+            <th>(D1) Waste (g)</th>
+            <th>(D2) Other Material Leftover (g)</th>
+            <th>(E1) Actual used (g)</th>
+            <th>(E2) Processing loss (g)</th>
+            <th>(E3) Processing loss %</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print">
+        <button class="btn-add" type="button" onclick="addPrerollDailyInventoryRow()">Add Inventory Row</button>
+      </div>
+    </fieldset>
+
+    <!-- Section 2.1: Input Bag/Container -->
+    <fieldset id="preroll_section2_input">
+      <legend>2.1 Input Bag/Container number and quantity (g)</legend>
+      <table id="prerollDailyInputTable">
+        <thead>
+          <tr><th>Date</th><th>Bag/Container</th><th>Quantity (g)</th></tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      <div class="controls no-print">
+        <button class="btn-add" type="button" onclick="addPrerollDailyInputRow()">Add Bag Entry</button>
+      </div>
+    </fieldset>
+
+    <!-- Section 3: Pre-Operation and Sanitation -->
+    <fieldset id="preroll_section3">
+      <legend>3. Pre-Operation and Sanitation</legend>
+      <h3>3.1 General</h3>
+      <table>
+        <tr><td>Room location</td><td><input type="text" id="preroll_room_location"></td></tr>
+        <tr><td>Date & Time</td><td><input type="datetime-local" id="preroll_date_time"></td></tr>
+        <tr><td><label><input type="checkbox" id="preroll_no_broken"> No broken glass/plastics/wood; remove irrelevant bulk materials, consumables and tools</label></td></tr>
+        <tr><td><label><input type="checkbox" id="preroll_sanitize"> Sanitize storage container, equipment, and tools with isopropanol 70%</label></td></tr>
+        <tr><td><label><input type="checkbox" id="preroll_visual_check"> Cannabis material open and quickly visual check to confirm no sign of damage or contaminants etc.</label></td></tr>
+      </table>
+      <h3>3.2 Header Information</h3>
+      <table>
+        <tr><td>Packaging Date (YYYY-MM-DD)</td><td><input type="date" id="preroll_packaging_date"></td></tr>
+        <tr><td>SKU Name</td><td><input type="text" id="preroll_sku_name"></td></tr>
+        <tr><td>Final Product Lot #</td><td><input type="text" id="preroll_final_lot"></td></tr>
+        <tr><td>Source Lot #</td><td><input type="text" id="preroll_source_lot"></td></tr>
+        <tr><td>Cannabis net weight per unit (grams)</td><td><input type="number" id="preroll_net_weight_per_unit" step="0.01"></td></tr>
+        <tr><td>Number of pre-rolls per unit</td><td><input type="number" id="preroll_pre_rolls_per_unit" step="1"></td></tr>
+      </table>
+      <h3>3.3 Scale Check</h3>
+      <table id="preroll_scaleCheckTable">
+        <thead>
+          <tr><th>Scale #</th><th>Weight Standard</th><th>Scale Reading</th><th>Acceptable?</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollScaleRow()">Add Scale</button></div>
+      <h3>3.4 ATP Swab Test</h3>
+      <table id="preroll_atpSwabTable">
+        <thead>
+          <tr><th>Swab ID</th><th>Reading (RLU)</th><th>Result</th><th>Comments</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollSwabRow()">Add Swab</button></div>
+      <h3>3.5 Room Temperature (°C)</h3>
+      <table id="preroll_roomTempTable">
+        <thead><tr><th>Date</th><th>Temperature (°C)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollRoomTempRow()">Add Temp Entry</button></div>
+      <h3>3.6 Room Humidity (%)</h3>
+      <table id="preroll_roomHumidityTable">
+        <thead><tr><th>Date</th><th>Humidity (%)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollRoomHumidityRow()">Add Humidity Entry</button></div>
+    </fieldset>
+
+    <!-- Section 4: Packaging Material -->
+    <fieldset id="preroll_section4">
+      <legend>4. Packaging Material</legend>
+      <table id="preroll_packagingMaterialTable">
+        <thead>
+          <tr><th>Packaging Material</th><th>Lot Number</th><th>Total Amount used</th><th>Total Amount Disposed</th><th>Container (Bag/Pouch)</th><th>Closure (if applicable)</th><th>Humidity Control Pack (Boveda)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollPackagingMaterialRow()">Add Material</button></div>
+    </fieldset>
+
+    <!-- Section 5: Seal Integrity Check -->
+    <fieldset id="preroll_section5">
+      <legend>5. Seal Integrity Check</legend>
+      <table id="preroll_sealIntegrityTable">
+        <thead><tr><th>Date & Time</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollSealIntegrityRow()">Add Seal Check</button></div>
+    </fieldset>
+
+    <!-- Section 6: Product Integrity Check -->
+    <fieldset id="preroll_section6">
+      <legend>6. Product Integrity Check</legend>
+      <table id="preroll_productIntegrityTable">
+        <thead><tr><th>Date & Time</th><th>Number of units checked</th><th>Product Integrity (check mark)</th><th>Checked by</th><th>Signature</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollProductIntegrityRow()">Add Product Integrity</button></div>
+    </fieldset>
+
+    <!-- Section 7: Post Operation Check and Sanitation -->
+    <fieldset id="preroll_section7">
+      <legend>7. Post Operation Check and Sanitation</legend>
+      <table id="preroll_postOperationTable">
+        <thead>
+          <tr><th>Date</th><th>Clean packaging station & tools with ISO 70%</th><th>Return packaging material to designated area</th><th>Record and return leftover cannabis</th><th>Collect and record waste material</th><th>Box and label packaged product</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollPostOperationRow()">Add Post-Op Entry</button></div>
+    </fieldset>
+
+    <!-- Section 8: Staff Record -->
+    <fieldset id="preroll_section8">
+      <legend>8. Staff Record</legend>
+      <table id="preroll_staffRecordTable">
+        <thead><tr><th>Date</th><th>Print names of applicable production members</th><th>Total number of staff</th><th>Batch recorded and verified by</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls no-print"><button class="btn-add" type="button" onclick="addPrerollStaffRecordRow()">Add Staff Entry</button></div>
+    </fieldset>
+
+    <!-- Section 9: Completion and Review -->
+    <fieldset id="preroll_section9">
+      <legend>9. Completion and Review</legend>
+      <table>
+        <tr><td>Performed and recorded by</td><td><input type="text" id="preroll_completed_by"></td></tr>
+        <tr><td>Signature</td><td><input type="text" id="preroll_completed_signature"></td></tr>
+        <tr><td>Date</td><td><input type="date" id="preroll_completed_date"></td></tr>
+        <tr><td>Quality Assurance Review by</td><td><input type="text" id="preroll_qa_by"></td></tr>
+        <tr><td>QA Signature</td><td><input type="text" id="preroll_qa_signature"></td></tr>
+        <tr><td>QA Date</td><td><input type="date" id="preroll_qa_date"></td></tr>
+      </table>
+    </fieldset>
+
+    <!-- Buttons for pre-roll page -->
+    <div class="controls no-print">
+      <button class="btn-submit" type="button" onclick="exportToExcel()">Submit</button>
+      <button class="btn-print" type="button" onclick="window.print()">Print</button>
+    </div>
+
+  </div> <!-- end of prerollPage -->
+
+  <!-- Include SheetJS library -->
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script>
+    // Show/hide other product type input
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('product_other_chk').addEventListener('change', function() {
+        document.getElementById('product_other_text').style.display = this.checked ? 'block' : 'none';
+      });
+    });
+
+    // Global variable to track which page is currently visible (dried or preroll)
+    window.currentPage = 'dried';
+
+    // Function to switch between pages
+    function showPage(page) {
+      // Hide both pages initially
+      const driedPage = document.getElementById('driedPage');
+      const prerollPage = document.getElementById('prerollPage');
+      if (!driedPage || !prerollPage) return;
+      driedPage.style.display = (page === 'dried') ? 'block' : 'none';
+      prerollPage.style.display = (page === 'preroll') ? 'block' : 'none';
+      // Update nav button active state
+      const btnDried = document.getElementById('btnDried');
+      const btnPreroll = document.getElementById('btnPreroll');
+      if (btnDried && btnPreroll) {
+        btnDried.classList.toggle('active', page === 'dried');
+        btnPreroll.classList.toggle('active', page === 'preroll');
+      }
+      window.currentPage = page;
+    }
+
+    // Functions to add rows for dynamic tables
+    function addDailyInventoryRow() {
+      const tbody = document.querySelector('#dailyInventoryTable tbody');
+      const tr = document.createElement('tr');
+      const types = ['date','number','number','number','number','number','number','number','number','number'];
+      types.forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') {
+          input.type = 'date';
+        } else {
+          input.type = 'number';
+          input.step = '0.01';
+        }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addDailyInputRow() {
+      const tbody = document.querySelector('#dailyInputTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td');
+      let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // Bag/Container
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Quantity
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addScaleRow() {
+      const tbody = document.querySelector('#scaleCheckTable tbody');
+      const tr = document.createElement('tr');
+      // Scale #
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Weight Standard
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Scale Reading
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Acceptable? (text yes/no or comment)
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addSwabRow() {
+      const tbody = document.querySelector('#atpSwabTable tbody');
+      const tr = document.createElement('tr');
+      // Swab ID
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Reading
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Result
+      td = document.createElement('td'); const select = document.createElement('select'); ['','Pass (<20)','Caution (20-39)','Fail (>40)','NA'].forEach(optTxt => { const opt = document.createElement('option'); opt.value=optTxt; opt.textContent=optTxt; select.appendChild(opt); }); td.appendChild(select); tr.appendChild(td);
+      // Comments
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addRoomTempRow() {
+      const tbody = document.querySelector('#roomTempTable tbody');
+      const tr = document.createElement('tr');
+      ['date','number'].forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') input.type = 'date'; else { input.type = 'number'; input.step = '0.1'; }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addRoomHumidityRow() {
+      const tbody = document.querySelector('#roomHumidityTable tbody');
+      const tr = document.createElement('tr');
+      ['date','number'].forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') input.type = 'date'; else { input.type = 'number'; input.step = '0.1'; }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addPackagingMaterialRow() {
+      const tbody = document.querySelector('#packagingMaterialTable tbody');
+      const tr = document.createElement('tr');
+      // Packaging Material
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Lot Number
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Total Amount used
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Total Amount Disposed
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Container
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Closure
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Boveda pack
+      td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addWeightVerificationRow() {
+      const tbody = document.querySelector('#weightVerificationTable tbody');
+      const tr = document.createElement('tr');
+      // Date & Time
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='datetime-local'; td.appendChild(inp); tr.appendChild(td);
+      // Before weight
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // After weight
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Capped/sealed
+      td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPostOperationRow() {
+      const tbody = document.querySelector('#postOperationTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // 7 tasks
+      for (let i=0;i<7;i++) {
+        td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    function addStaffRecordRow() {
+      const tbody = document.querySelector('#staffRecordTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // Names
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Number of staff
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='1'; td.appendChild(inp); tr.appendChild(td);
+      // Batch recorded & verified by
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    // Preroll dynamic row functions
+    function addPrerollDailyInventoryRow() {
+      const tbody = document.querySelector('#prerollDailyInventoryTable tbody');
+      const tr = document.createElement('tr');
+      const types = ['date','number','number','number','number','number','number','number','number','number'];
+      types.forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') {
+          input.type = 'date';
+        } else {
+          input.type = 'number';
+          input.step = '0.01';
+        }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addPrerollDailyInputRow() {
+      const tbody = document.querySelector('#prerollDailyInputTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // Bag/Container
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Quantity
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPrerollScaleRow() {
+      const tbody = document.querySelector('#preroll_scaleCheckTable tbody');
+      const tr = document.createElement('tr');
+      // Scale #
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Weight Standard
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Scale Reading
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Acceptable?
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPrerollSwabRow() {
+      const tbody = document.querySelector('#preroll_atpSwabTable tbody');
+      const tr = document.createElement('tr');
+      // Swab ID
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Reading
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Result
+      td = document.createElement('td'); const select = document.createElement('select'); ['','Pass (<20)','Caution (20-39)','Fail (>40)','NA'].forEach(optTxt => { const opt = document.createElement('option'); opt.value=optTxt; opt.textContent=optTxt; select.appendChild(opt); }); td.appendChild(select); tr.appendChild(td);
+      // Comments
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPrerollRoomTempRow() {
+      const tbody = document.querySelector('#preroll_roomTempTable tbody');
+      const tr = document.createElement('tr');
+      ['date','number'].forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') input.type = 'date'; else { input.type = 'number'; input.step = '0.1'; }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addPrerollRoomHumidityRow() {
+      const tbody = document.querySelector('#preroll_roomHumidityTable tbody');
+      const tr = document.createElement('tr');
+      ['date','number'].forEach(type => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        if (type === 'date') input.type = 'date'; else { input.type = 'number'; input.step = '0.1'; }
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+    function addPrerollPackagingMaterialRow() {
+      const tbody = document.querySelector('#preroll_packagingMaterialTable tbody');
+      const tr = document.createElement('tr');
+      // Packaging Material
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Lot Number
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Total Amount used
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Total Amount Disposed
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; td.appendChild(inp); tr.appendChild(td);
+      // Container
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Closure
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Humidity control pack
+      td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPrerollSealIntegrityRow() {
+      const tbody = document.querySelector('#preroll_sealIntegrityTable tbody');
+      const tr = document.createElement('tr');
+      // Date & Time
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='datetime-local'; td.appendChild(inp); tr.appendChild(td);
+      // Five samples
+      for (let i=0;i<5;i++) {
+        td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    function addPrerollProductIntegrityRow() {
+      const tbody = document.querySelector('#preroll_productIntegrityTable tbody');
+      const tr = document.createElement('tr');
+      // Date & Time
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='datetime-local'; td.appendChild(inp); tr.appendChild(td);
+      // Number of units checked
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='1'; td.appendChild(inp); tr.appendChild(td);
+      // Product integrity (check mark)
+      td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      // Checked by
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Signature
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    function addPrerollPostOperationRow() {
+      const tbody = document.querySelector('#preroll_postOperationTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // 5 tasks
+      for (let i=0;i<5;i++) {
+        td = document.createElement('td'); const chk = document.createElement('input'); chk.type='checkbox'; td.appendChild(chk); tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    function addPrerollStaffRecordRow() {
+      const tbody = document.querySelector('#preroll_staffRecordTable tbody');
+      const tr = document.createElement('tr');
+      // Date
+      let td = document.createElement('td'); let inp = document.createElement('input'); inp.type='date'; td.appendChild(inp); tr.appendChild(td);
+      // Names
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      // Number of staff
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='number'; inp.step='1'; td.appendChild(inp); tr.appendChild(td);
+      // Batch recorded & verified by
+      td = document.createElement('td'); inp = document.createElement('input'); inp.type='text'; td.appendChild(inp); tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    // Initialize with a single row per dynamic table
+    document.addEventListener('DOMContentLoaded', () => {
+      addDailyInventoryRow();
+      addDailyInputRow();
+      addScaleRow();
+      addSwabRow();
+      addRoomTempRow();
+      addRoomHumidityRow();
+      addPackagingMaterialRow();
+      addWeightVerificationRow();
+      addPostOperationRow();
+      addStaffRecordRow();
+      // Initialize preroll tables with one row each
+      addPrerollDailyInventoryRow();
+      addPrerollDailyInputRow();
+      addPrerollScaleRow();
+      addPrerollSwabRow();
+      addPrerollRoomTempRow();
+      addPrerollRoomHumidityRow();
+      addPrerollPackagingMaterialRow();
+      addPrerollSealIntegrityRow();
+      addPrerollProductIntegrityRow();
+      addPrerollPostOperationRow();
+      addPrerollStaffRecordRow();
+      // Initially show dried page
+      showPage('dried');
+    });
+
+    // Helper to collect table data into arrays
+    function collectTable(selector) {
+      const table = document.querySelector(selector);
+      const data = [];
+      const headers = [];
+      table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+      data.push(headers);
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        const row = [];
+        tr.querySelectorAll('td').forEach(td => {
+          const elem = td.querySelector('input, select');
+          if (!elem) {
+            row.push('');
+          } else if (elem.type === 'checkbox') {
+            row.push(elem.checked ? 'Yes' : 'No');
+          } else if (elem.tagName === 'SELECT') {
+            row.push(elem.value);
+          } else {
+            row.push(elem.value);
+          }
+        });
+        data.push(row);
+      });
+      return data;
+    }
+
+    // Export data to a single Excel worksheet with the specified columns
+    function exportToExcel() {
+      // Define the header row for the single-sheet export
+      const headers = [
+        'SKU Name',
+        'Lot',
+        'Activity Date',
+        'Packaged Date (on Labeled)',
+        'Total Packaged Units',
+        'Weight per Package',
+        'Equivalent Weight (grams)',
+        'Input lot',
+        'Input Amount (grams)',
+        'Input Remaining (grams)',
+        'Waste',
+        'Other (Shake, Stem)',
+        'Actual Used',
+        'Processign Loss (grams)',
+        'Processing Loss %'
+      ];
+      // Array to hold all rows including header
+      const data = [headers];
+      // Gather general values from the form; these remain constant for each record row
+      // Use Cultivar as SKU Name (since there is no separate SKU field)
+      let sku = '';
+      let lot = '';
+      let packagedDate = '';
+      let weightPerPkg = '';
+      let inputLot = '';
+      let inventorySelector = '';
+      // Determine which page is active and set general values accordingly
+      if (window.currentPage === 'dried') {
+        // Use Cultivar as SKU Name (since there is no separate SKU field)
+        sku = document.getElementById('cultivar') ? document.getElementById('cultivar').value : '';
+        // Final Product Lot # maps to Lot
+        lot = document.getElementById('final_product_lot') ? document.getElementById('final_product_lot').value : '';
+        // Packaged Date: use Activity End Date if available, otherwise Completed Date
+        if (document.getElementById('activity_end_date') && document.getElementById('activity_end_date').value) {
+          packagedDate = document.getElementById('activity_end_date').value;
+        } else if (document.getElementById('completed_date') && document.getElementById('completed_date').value) {
+          packagedDate = document.getElementById('completed_date').value;
+        }
+        // Weight per Package maps to Cannabis Net weight per Unit (grams)
+        weightPerPkg = document.getElementById('net_weight_per_unit') ? document.getElementById('net_weight_per_unit').value : '';
+        // Input lot maps to Original (Source) Lot
+        inputLot = document.getElementById('original_lot') ? document.getElementById('original_lot').value : '';
+        inventorySelector = '#dailyInventoryTable tbody tr';
+      } else {
+        // Preroll page values
+        sku = document.getElementById('preroll_sku_name') ? document.getElementById('preroll_sku_name').value : '';
+        lot = document.getElementById('preroll_final_lot') ? document.getElementById('preroll_final_lot').value : '';
+        packagedDate = document.getElementById('preroll_packaging_date') ? document.getElementById('preroll_packaging_date').value : '';
+        weightPerPkg = document.getElementById('preroll_net_weight_per_unit') ? document.getElementById('preroll_net_weight_per_unit').value : '';
+        inputLot = document.getElementById('preroll_source_lot') ? document.getElementById('preroll_source_lot').value : '';
+        inventorySelector = '#prerollDailyInventoryTable tbody tr';
+      }
+      // Iterate over each row of the selected Daily Inventory table to collect row-specific values
+      document.querySelectorAll(inventorySelector).forEach(tr => {
+        const inputs = tr.querySelectorAll('td input');
+        if (!inputs || inputs.length === 0) return;
+        const activityDate = inputs[0].value;
+        const inputAmount = inputs[1].value;
+        const packagedUnits = inputs[2].value;
+        const equivWeight = inputs[3].value;
+        const remainingInput = inputs[4].value;
+        const waste = inputs[5].value;
+        const otherLeftover = inputs[6].value;
+        const actualUsed = inputs[7].value;
+        const processingLoss = inputs[8].value;
+        const processingLossPct = inputs[9].value;
+        data.push([
+          sku,
+          lot,
+          activityDate,
+          packagedDate,
+          packagedUnits,
+          weightPerPkg,
+          equivWeight,
+          inputLot,
+          inputAmount,
+          remainingInput,
+          waste,
+          otherLeftover,
+          actualUsed,
+          processingLoss,
+          processingLossPct
+        ]);
+      });
+      // Create a new workbook and append the single worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Batch Records');
+      // Generate filename with current date
+      const today = new Date();
+      const fileName = `FMAT005_batch_records_${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    }
+  </script>
+</body>
+</html>
